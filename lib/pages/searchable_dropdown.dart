@@ -2,21 +2,46 @@
 
 import 'package:flutter/material.dart';
 
-enum PopupStyle { bottomSheetModal, fullScreenModal}
+enum PopupStyle { bottomSheetModal, fullScreenModal }
 
 class SearchableDropdown<T> extends StatefulWidget {
+  /// dropdown items
   final List<T> items;
+
+  /// trigger to set textfield value
+  /// and send back selected item to parent
   final Function(T?) onSelectedItemChanged;
+
+  /// to set which item will displayed
   final String Function(T) displayItem;
+
+  /// set popup style
+  /// - fullScreenModal
+  /// - bottomSheetModal
   final PopupStyle? popupStyle;
+
+  /// textediting controller
   final TextEditingController textController;
+
+  /// set selectedItem
   final T selectedItem;
+
+  /// set title
   final String title;
+
+  /// set searchable
   final bool? searchable;
+
+  /// set search text label
   final String searchText;
-  final String searchKey;
+
+  /// set textController value
   final String? value;
+
+  /// set dropdown item text style
   final TextStyle? itemTextStyle;
+
+  /// to set show selected item or not
   final bool showSelected;
 
   const SearchableDropdown({
@@ -32,7 +57,6 @@ class SearchableDropdown<T> extends StatefulWidget {
     this.itemTextStyle,
     this.searchable = false,
     this.searchText = "Search ...",
-    this.searchKey = "",
     this.showSelected = false,
   }) : super(key: key);
 
@@ -44,6 +68,10 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
   @override
   Widget build(BuildContext context) {
     widget.textController.text = widget.value ?? "";
+
+    /// =================================================
+    /// generate textfield to show selected dropdown item
+    /// =================================================
     return TextFormField(
       readOnly: true,
       controller: widget.textController,
@@ -66,26 +94,34 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
       ),
       onTap: () async {
         T? res;
+
+        /// =======================================
+        /// show dropdown list as bottomsheet modal
+        /// =======================================
         if (widget.popupStyle == PopupStyle.bottomSheetModal) {
           res = await showModalBottomSheet<T>(
+            isScrollControlled: true,
             context: context,
             builder: (context) {
-              return DialogDropdown<T>(
-                title: widget.title,
-                items: widget.items,
-                selectedItem: widget.selectedItem,
-                onChanged: widget.onSelectedItemChanged,
-                displayItem: widget.displayItem,
-                searchable: widget.searchable ?? false,
-                searchText: widget.searchText,
-                searchKey: widget.searchKey,
+              return FractionallySizedBox(
+                heightFactor: 0.7,
+                child: DialogDropdown<T>(
+                  title: widget.title,
+                  items: widget.items,
+                  selectedItem: widget.selectedItem,
+                  onChanged: widget.onSelectedItemChanged,
+                  displayItem: widget.displayItem,
+                  searchable: widget.searchable ?? false,
+                  searchText: widget.searchText,
+                ),
               );
             },
           );
-          if (res != null) {
-            widget.textController.text = widget.displayItem(res);
-          }
         }
+
+        /// ======================================
+        /// show dropdown list as fullscreen modal
+        /// ======================================
         if (widget.popupStyle == PopupStyle.fullScreenModal) {
           res = await Navigator.push<T>(
             context,
@@ -99,21 +135,19 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
                 itemTextStyle: widget.itemTextStyle,
                 searchable: widget.searchable ?? false,
                 searchText: widget.searchText,
-                searchKey: widget.searchKey,
                 showSelected: widget.showSelected,
               ),
             ),
           );
-          if (res != null) {
-            widget.textController.text = widget.displayItem(res);
-          }
         }
 
+        /// =============================================
+        /// set the result to textfield and parent widget
+        /// =============================================
         if (res != null) {
+          widget.textController.text = widget.displayItem(res);
           widget.onSelectedItemChanged(res);
         }
-
-        // Navigator.pop(context, res);
       },
     );
   }
@@ -125,11 +159,9 @@ class DialogDropdown<T> extends StatefulWidget {
   final T selectedItem;
   final ValueChanged<T?> onChanged;
   final String Function(T) displayItem;
-  final PopupStyle? popupStyle;
   final TextStyle? itemTextStyle;
   final bool searchable;
   final String searchText;
-  final String searchKey;
   final bool showSelected;
 
   const DialogDropdown({
@@ -141,8 +173,6 @@ class DialogDropdown<T> extends StatefulWidget {
     required this.displayItem,
     required this.searchable,
     this.searchText = "Search ...",
-    this.searchKey = "",
-    this.popupStyle = PopupStyle.bottomSheetModal,
     this.itemTextStyle,
     this.showSelected = false,
   }) : super(key: key);
@@ -180,28 +210,9 @@ class _DialogDropdownState<T> extends State<DialogDropdown<T>> {
       ),
       body: Column(
         children: [
-          Visibility(
-            visible: widget.popupStyle == PopupStyle.fullScreenModal,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  Text(
-                    widget.title,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const Divider(height: 0),
+          /// ===============================================
+          /// generate textfield search if searchable is true
+          /// ===============================================
           Visibility(
             visible: widget.searchable,
             child: Padding(
@@ -209,8 +220,12 @@ class _DialogDropdownState<T> extends State<DialogDropdown<T>> {
                 horizontal: 16.0,
                 vertical: 8.0,
               ),
+
+              /// ================
+              /// textfield search
+              /// ================
               child: TextFormField(
-                controller: textSearch,                
+                controller: textSearch,
                 decoration: InputDecoration(
                   filled: false,
                   hintText: widget.searchText,
@@ -226,6 +241,9 @@ class _DialogDropdownState<T> extends State<DialogDropdown<T>> {
                   ),
                   suffixIcon: IconButton(
                     onPressed: () {
+                      /// ======================
+                      /// clear search textfield
+                      /// ======================
                       textSearch.clear();
                       filteredItems = fullItems;
                       setState(() {});
@@ -235,8 +253,12 @@ class _DialogDropdownState<T> extends State<DialogDropdown<T>> {
                 ),
                 onChanged: (value) {
                   filteredItems = fullItems.where((item) {
-                    if (widget.searchable) {                                          
+                    /// searchable
+                    if (widget.searchable) {
                       try {
+                        /// ====================
+                        /// search dropdown item
+                        /// ====================
                         return item.toString().toLowerCase().contains(value);
                       } catch (e) {
                         return false;
@@ -249,31 +271,59 @@ class _DialogDropdownState<T> extends State<DialogDropdown<T>> {
               ),
             ),
           ),
+
+          /// ===========================
+          /// generate dropdown item list
+          /// ===========================
           Expanded(
             child: ListView.builder(
               itemCount: filteredItems.length,
               itemBuilder: (context, index) {
                 T item = filteredItems[index];
 
+                /// ========================================
+                /// if show selected, then set selected item
                 bool selected = item == widget.selectedItem;
 
+                ///
+                /// if not show selected, then selected item always false
                 if (!widget.showSelected) selected = false;
 
+                /// ========================================
+
+                /// ======================
+                /// generate dropdown item
+                /// ======================
                 return Container(
                   margin: EdgeInsets.only(
                       bottom: index == (filteredItems.length - 1) ? 16 : 0),
+
+                  /// ========================================
+                  /// set background color if selected is true
+                  /// ========================================
                   color: selected ? Colors.grey.shade100 : null,
                   child: ListTile(
                     contentPadding:
                         const EdgeInsets.symmetric(horizontal: 16.0),
+
+                    /// =======================
+                    /// show dropdown item text
+                    /// =======================
                     title: Text(
                       widget.displayItem(item),
                       style: widget.itemTextStyle,
                     ),
+
+                    /// =====================================
+                    /// show checked icon if selected is true
+                    /// =====================================
                     trailing: selected
                         ? const Icon(Icons.check, color: Colors.green)
                         : null,
                     onTap: () {
+                      /// ========================
+                      /// close dropdown item list
+                      /// ========================
                       Navigator.pop(context, item);
                     },
                   ),

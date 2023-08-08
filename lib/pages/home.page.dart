@@ -15,8 +15,8 @@ class _HomePageState extends State<HomePage> {
   var textController = TextEditingController();
 
   List<Fruit> fruits = [
-    Fruit(name: "Apel", color: "Merah"),
-    Fruit(name: "Jeruk", color: "Orange"),
+    Fruit(name: "Apple", color: "Red"),
+    Fruit(name: "Banana", color: "Yellow"),
     Fruit(name: "Pisang", color: "Kuning"),
   ];
   Fruit? selectedFruit;
@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
                 });
               },
               displayItem: (Fruit fruit) => fruit.name ?? "",
-              popupStyle: PopupStyle.fullScreenModal,
+              // popupStyle: PopupStyle.fullScreenModal,
               searchable: true,
               searchText: "Cari",
               showSelected: true,
