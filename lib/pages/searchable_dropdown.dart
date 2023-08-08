@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-enum PopupStyle { bottomSheetModal, fullScreenModal, dialogScreenModal }
+enum PopupStyle { bottomSheetModal, fullScreenModal}
 
 class SearchableDropdown<T> extends StatefulWidget {
   final List<T> items;
