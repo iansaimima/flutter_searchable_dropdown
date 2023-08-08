@@ -15,9 +15,10 @@ class _HomePageState extends State<HomePage> {
   var textController = TextEditingController();
 
   List<Fruit> fruits = [
-    Fruit(name: "Apple", color: "Red"),
-    Fruit(name: "Banana", color: "Yellow"),
+    Fruit(name: "Apel", color: "Merah"),
+    Fruit(name: "Jeruk", color: "Orange"),
     Fruit(name: "Pisang", color: "Kuning"),
+    Fruit(name: "Melon", color: "Hijau"),
   ];
   Fruit? selectedFruit;
 
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             SearchableDropdown<Fruit>(
               textController: textController,
-              title: "Select Fruit",
+              title: "Pilih buah",
               items: fruits,
               selectedItem: selectedFruit!,
               value: selectedFruit!.name,
@@ -57,7 +58,7 @@ class _HomePageState extends State<HomePage> {
               showSelected: true,
             ),
             const SizedBox(height: 16),
-            Text("Selected fruit is ${selectedFruit!.name}"),
+            Text("Buah yang dipilih ${selectedFruit!.name}, berwarna ${selectedFruit!.color}"),
           ],
         ),
       ),
